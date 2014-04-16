@@ -131,7 +131,7 @@ namespace Changelog
             return new WidgetResult() { Success = true, Markup = new WidgetMarkup("Changelog") };
         }
 
-        private Changelog.Models.ChangelogpAppModel BuildModelData(int versionId, IEnumerable<Countersoft.Gemini.Commons.Entity.Version> iVersions)
+        private Changelog.Models.ChangelogpAppModel BuildModelData(int versionId, IEnumerable<Countersoft.Gemini.Commons.Entity.Version> iVersions, IssuesFilter OriginalFilter = null)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -235,6 +235,14 @@ namespace Changelog
                     IssuesGridFilter defaultFilter = new IssuesGridFilter(IssuesFilter.CreateProjectFilter(CurrentUser.Entity.Id, CurrentProject.Entity.Id));
                     
                     filter = IssuesFilter.CreateVersionFilter(CurrentUser.Entity.Id, CurrentProject.Entity.Id, version.Entity.Id);
+
+                    if (OriginalFilter != null)
+                    {
+                        filter.SortField = OriginalFilter.SortField;
+                        filter.SortOrder = OriginalFilter.SortOrder;
+                    }
+
+                    ItemFilterManager.SetSortedColumns(gridColumns, filter);
 
                     model.Filter = IssueFilterHelper.PopulateModel(model.Filter, filter, filter, PermissionsManager, ItemFilterManager, IssueFilterHelper.GetViewableFields(filter, ProjectManager, MetaManager), false);
                 }
@@ -356,7 +364,7 @@ namespace Changelog
                 issues = IssueManager.GetRoadmap(UserContext.Project.Entity.Id, filter, versionId);
             }
 
-            Changelog.Models.ChangelogpAppModel model = BuildModelData(versionId, versions);
+            Changelog.Models.ChangelogpAppModel model = BuildModelData(versionId, versions, filter);
             
             model.Issues = issues;
 
