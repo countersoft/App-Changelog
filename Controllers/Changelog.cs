@@ -273,6 +273,8 @@ namespace Changelog
 
             model.Sort = sort.ToString();
 
+            model.CurrentPageCard = CurrentCard;
+
             return model;
         }
 
