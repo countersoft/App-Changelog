@@ -42,6 +42,8 @@ namespace Changelog
     {
         public override WidgetResult Show(IssueDto issue = null)
         {
+            var filter = IsSessionFilter() || CurrentCard.CardType != ProjectTemplatePageType.Custom && "app/changelog/view".Equals(CurrentCard.Url, StringComparison.InvariantCultureIgnoreCase) ? HttpSessionManager.GetFilter(CurrentCard.Id, IssuesFilter.CreateProjectFilter(CurrentUser.Entity.Id, CurrentProject.Entity.Id)) : CurrentCard.Filter;
+            HttpSessionManager.SetFilter(CurrentCard.Id, filter);
             var workspaceProjects = new List<int>();
 
             int? currentProjectId = 0;
@@ -451,15 +453,8 @@ namespace Changelog
 
             IssuesFilter filter = HttpSessionManager.GetFilter(CurrentCard.Id);
             
-            if (filter == null)
-            {
-                filter = ItemFilterManager.TransformFilter(IssuesFilter.CreateProjectFilter(CurrentUser.Entity.Id, projectId));
-            }
-            else
-            {
-                filter = ItemFilterManager.TransformFilter(filter);
-            }
-
+            filter = ItemFilterManager.TransformFilter(IssuesFilter.CreateProjectFilter(CurrentUser.Entity.Id, projectId));
+            
             SetCurrentProjectFromFilter(filter);
 
             model.Columns = GridManager.GetAvailableColumns(filter.GetProjects(), IssueFilterHelper.AggregateTypes(filter, ProjectManager, MetaManager), fields);
